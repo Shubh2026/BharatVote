@@ -1,12 +1,12 @@
 # Stage 1: Build the React application
-FROM node:18-alpine AS build
+FROM node:20-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy package files and install dependencies
+# Copy package files and install dependencies using clean install
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the application files
 COPY . .
@@ -25,7 +25,7 @@ FROM nginx:alpine
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy the built assets from the previous stage to the Nginx web root
-COPY --from=build /app/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Expose port 8080 as expected by Google Cloud Run
 EXPOSE 8080
