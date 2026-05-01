@@ -1,178 +1,73 @@
-# 🗳️ BharatVote Guide
+# React + TypeScript + Vite
 
-> An interactive, bilingual (English + Hindi) web application that educates Indian citizens about the complete election process — from voter registration to government formation.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-**Powered by Google Gemini AI · Deployed on Google Cloud Run**
+Currently, two official plugins are available:
 
----
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
-## ✨ Features
+## React Compiler
 
-| Feature | Description |
-|---|---|
-| **📅 Interactive Timeline** | 6-phase election process from announcement to results |
-| **🧭 Step-by-Step Wizard** | Walk through registration → nomination → campaign → voting → counting → results |
-| **📝 Knowledge Quiz** | 10-question bilingual quiz with scoring and explanations |
-| **❓ FAQ Section** | 8+ common questions with clear answers |
-| **🗺️ State Info Selector** | Election data for 28 states + 8 UTs |
-| **🤖 AI Assistant** | Google Gemini–powered Q&A for personalised guidance |
-| **🌐 Bilingual** | Full English ↔ Hindi toggle |
-| **🎨 Premium UI** | Dark theme with gradient accents, Inter font, and responsive design |
-| **♿ Accessible** | ARIA labels, keyboard navigation, skip-to-content, high contrast |
+The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
 
----
+## Expanding the ESLint configuration
 
-## 🏗️ Architecture
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```
-Vote-Path-/
-├── app.py                    # Main Streamlit entry point
-├── Dockerfile                # Cloud Run–ready container
-├── requirements.txt          # Python dependencies
-├── .env.example              # Environment variable template
-├── .streamlit/
-│   └── config.toml           # Streamlit theme & server config
-├── src/
-│   ├── config.py             # App configuration (env-based)
-│   ├── gemini_client.py      # Gemini API client (rate-limited, sanitised)
-│   ├── components/
-│   │   ├── home.py           # Landing page with hero & feature cards
-│   │   ├── timeline.py       # Interactive election timeline
-│   │   ├── wizard.py         # Step-by-step election guide
-│   │   ├── quiz.py           # Interactive quiz with scoring
-│   │   ├── faq.py            # FAQ accordion
-│   │   ├── states.py         # State information selector
-│   │   ├── ai_chat.py        # Gemini AI chat interface
-│   │   └── sidebar.py        # Navigation & language toggle
-│   ├── data/
-│   │   ├── election_data.py  # Timeline & wizard content (EN/HI)
-│   │   ├── quiz_data.py      # 10 quiz questions per language
-│   │   ├── faq_data.py       # FAQ entries (EN/HI)
-│   │   └── state_data.py     # State election statistics
-│   └── utils/
-│       ├── i18n.py           # Translation system (140+ strings)
-│       ├── rate_limiter.py   # Sliding-window rate limiter
-│       └── sanitizer.py      # Input sanitisation (XSS prevention)
-└── tests/
-    ├── test_sanitizer.py     # Sanitizer unit tests
-    ├── test_rate_limiter.py   # Rate limiter unit tests
-    ├── test_i18n.py          # Translation tests
-    ├── test_data.py          # Data integrity tests
-    └── test_gemini_client.py  # Gemini client tests (mocked)
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
----
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-## 🚀 Quick Start (Local Development)
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-### 1. Clone & install
-
-```bash
-git clone https://github.com/your-repo/Vote-Path-.git
-cd Vote-Path-
-pip install -r requirements.txt
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-### 2. Set your Gemini API key
-
-```bash
-cp .env.example .env
-# Edit .env and add your key from https://aistudio.google.com/apikey
-```
-
-### 3. Run the app
-
-```bash
-streamlit run app.py
-```
-
-Open [http://localhost:8501](http://localhost:8501)
-
----
-
-## 🧪 Running Tests
-
-```bash
-pytest tests/ -v --tb=short
-```
-
-With coverage:
-
-```bash
-pytest tests/ -v --cov=src --cov-report=term-missing
-```
-
----
-
-## ☁️ Deploy to Google Cloud Run
-
-### Prerequisites
-
-- [Google Cloud CLI](https://cloud.google.com/sdk) installed & authenticated
-- A GCP project with billing enabled
-- Gemini API key from [AI Studio](https://aistudio.google.com/apikey)
-
-### Step 1 — Set your project
-
-```bash
-gcloud config set project YOUR_PROJECT_ID
-```
-
-### Step 2 — Enable required APIs
-
-```bash
-gcloud services enable \
-  run.googleapis.com \
-  cloudbuild.googleapis.com \
-  artifactregistry.googleapis.com
-```
-
-### Step 3 — Deploy
-
-```bash
-gcloud run deploy bharatvote-guide \
-  --source . \
-  --region asia-south1 \
-  --allow-unauthenticated \
-  --set-env-vars "GEMINI_API_KEY=your-api-key-here" \
-  --memory 512Mi \
-  --cpu 1 \
-  --min-instances 0 \
-  --max-instances 3 \
-  --timeout 300 \
-  --port 8080
-```
-
-### Step 4 — Access your app
-
-The CLI will output a URL like:
-```
-https://bharatvote-guide-xxxxx-el.a.run.app
-```
-
----
-
-## 🔒 Security
-
-- **No secrets in code** — API key loaded from environment variables only
-- **Input sanitisation** — All user inputs are sanitised via `bleach` (HTML stripping, truncation)
-- **Rate limiting** — Sliding-window limiter prevents API abuse (10 calls/60s)
-- **XSRF protection** — Enabled in Streamlit config
-- **Safety filters** — Gemini safety settings block harmful content
-
----
-
-## ♿ Accessibility
-
-- Skip-to-content link for keyboard users
-- ARIA `role`, `aria-label`, `aria-selected` attributes throughout
-- High-contrast colour palette (WCAG AA compliant)
-- Focus-visible outlines on all interactive elements
-- Semantic HTML structure
-- Screen-reader–friendly navigation
-
----
-
-## 📄 License
-
-MIT © 2026 BharatVote Guide
