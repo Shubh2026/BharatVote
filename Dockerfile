@@ -1,30 +1,34 @@
-FROM python:3.12-slim
+# Stage 1: Build the React application
+FROM node:18-alpine AS build
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Install system dependencies (curl needed for healthcheck)
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Copy package files and install dependencies
+COPY package*.json ./
+RUN npm install
 
-# Copy requirements first for layer caching
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
+# Copy the rest of the application files
 COPY . .
 
-# Cloud Run injects PORT env var (default 8080)
-ENV PORT=8080
+# Pass the API key as a build argument (Vite embeds this at build time)
+ARG VITE_GEMINI_API_KEY
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
 
-# Expose the port
-EXPOSE ${PORT}
+# Build the Vite application
+RUN npm run build
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-    CMD curl -f http://localhost:${PORT}/_stcore/health || exit 1
+# Stage 2: Serve the application with Nginx
+FROM nginx:alpine
 
-# Start Streamlit bound to 0.0.0.0 and $PORT
-ENTRYPOINT ["sh", "-c", "streamlit run app.py --server.port=${PORT} --server.address=0.0.0.0 --server.headless=true --server.enableCORS=false --server.enableXsrfProtection=true --browser.gatherUsageStats=false"]
+# Copy the custom Nginx configuration to listen on port 8080 and handle SPA routing
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copy the built assets from the previous stage to the Nginx web root
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Expose port 8080 as expected by Google Cloud Run
+EXPOSE 8080
+
+# Start Nginx in the foreground
+CMD ["nginx", "-g", "daemon off;"]
