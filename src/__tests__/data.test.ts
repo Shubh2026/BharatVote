@@ -1,37 +1,56 @@
 import { describe, it, expect } from 'vitest';
-import * as electionData from '@/data/election-data';
-import * as quizData from '@/data/quiz-data';
-import * as stateData from '@/data/state-data';
+import { getQuizQuestions } from '../data/quiz-data';
+import { getTimelineData, getWizardSteps } from '../data/election-data';
+import { getStatesList, getStateInfo } from '../data/state-data';
 
-describe('Data validation', () => {
-  it('should have valid election timeline data', () => {
-    const timeline = electionData.getTimelineData('en');
-    expect(Array.isArray(timeline)).toBe(true);
-    expect(timeline.length).toBeGreaterThan(0);
-    timeline.forEach(item => {
-      expect(item).toHaveProperty('phase');
-      expect(item).toHaveProperty('title');
+describe('Data Integrity Tests', () => {
+  describe('Quiz Data', () => {
+    it('should return questions for both English and Hindi', () => {
+      const enQuestions = getQuizQuestions('en');
+      const hiQuestions = getQuizQuestions('hi');
+      
+      expect(enQuestions.length).toBeGreaterThan(0);
+      expect(hiQuestions.length).toBeGreaterThan(0);
+      expect(enQuestions.length).toBe(hiQuestions.length);
+    });
+
+    it('should have valid question structure', () => {
+      const questions = getQuizQuestions('en');
+      questions.forEach(q => {
+        expect(q).toHaveProperty('q');
+        expect(q).toHaveProperty('options');
+        expect(q).toHaveProperty('answer');
+        expect(q).toHaveProperty('explanation');
+        expect(q.options.length).toBeGreaterThan(1);
+      });
     });
   });
 
-  it('should have valid quiz data', () => {
-    expect(Array.isArray(quizData.quizQuestions)).toBe(true);
-    expect(quizData.quizQuestions.length).toBeGreaterThan(0);
-    quizData.quizQuestions.forEach(q => {
-      expect(q).toHaveProperty('q');
-      expect(Array.isArray(q.options)).toBe(true);
-      expect(typeof q.answer).toBe('number');
+  describe('Election Data', () => {
+    it('should return timeline data', () => {
+      const timeline = getTimelineData('en');
+      expect(timeline.length).toBeGreaterThan(0);
+      expect(timeline[0]).toHaveProperty('phase');
+      expect(timeline[0]).toHaveProperty('title');
+    });
+
+    it('should return wizard steps', () => {
+      const steps = getWizardSteps('en');
+      expect(steps.length).toBeGreaterThan(0);
+      expect(steps[0]).toHaveProperty('title');
     });
   });
 
-  it('should have valid state data', () => {
-    expect(Array.isArray(stateData.statesData)).toBe(true);
-    expect(stateData.statesData.length).toBeGreaterThan(0);
-    stateData.statesData.forEach(state => {
-      expect(state).toHaveProperty('id');
-      expect(state).toHaveProperty('en_name');
-      expect(state).toHaveProperty('hi_name');
-      expect(typeof state.voters).toBe('number');
+  describe('State Data', () => {
+    it('should list all states', () => {
+      const states = getStatesList();
+      expect(states.length).toBeGreaterThan(20);
+    });
+
+    it('should return valid state info', () => {
+      const info = getStateInfo('Uttar Pradesh', 'en');
+      expect(info).toBeDefined();
+      expect(info?.capital).toBe('Lucknow');
     });
   });
 });

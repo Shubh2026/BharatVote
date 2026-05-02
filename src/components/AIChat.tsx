@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, User, Bot, Loader2, RefreshCw, AlertCircle } from "lucide-react";
+import { Send, User, Bot, Loader2, RefreshCw } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -28,7 +28,6 @@ export function AIChat({ lang }: AIChatProps) {
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -49,57 +48,50 @@ export function AIChat({ lang }: AIChatProps) {
 
     const userMessage = input.trim();
     setInput("");
-    setError(null);
     setMessages(prev => [...prev, { role: "user", content: userMessage }]);
     setIsLoading(true);
 
     try {
-      const history = messages.map(m => ({
-        role: m.role === "user" ? "user" : "model",
-        parts: [{ text: m.content }]
-      }));
-
-      // Gemini requires history to start with user role if not empty
-      if (history.length > 0 && history[0].role === "model") {
-        history.shift();
-      }
-
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: userMessage, 
-          history,
-          lang 
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: userMessage }],
+          lang: lang
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || `Server error: ${response.status}`);
+        throw new Error(errorData.error || 'Failed to get response from AI');
       }
 
       const data = await response.json();
       setMessages(prev => [...prev, { role: "bot", content: data.text }]);
-    } catch (err: unknown) {
-      console.error("Chat Error:", err);
-      setError(err.message);
+    } catch (error: any) {
+      console.error("Chat Error:", error);
       
-      let fallbackMessage = lang === 'en'
-        ? "I'm sorry, I'm having trouble connecting right now. This might be due to heavy traffic. Please try again in a moment."
-        : "क्षमा करें, मुझे अभी जुड़ने में समस्या हो रही है। यह भारी ट्रैफ़िक के कारण हो सकता है। कृपया कुछ देर बाद पुनः प्रयास करें।";
+      let errorMessage = lang === 'en' 
+        ? "Sorry, I encountered an error. Please try again later." 
+        : "क्षमा करें, मुझे एक त्रुटि हुई। कृपया बाद में पुनः प्रयास करें।";
 
-      if (err.message.includes('429') || err.message.toLowerCase().includes('too many requests')) {
-        fallbackMessage = lang === 'en'
-          ? "You've reached the message limit for now. Please wait a minute before asking more questions."
-          : "आप अभी संदेश सीमा तक पहुँच गए हैं। अधिक प्रश्न पूछने से पहले कृपया एक मिनट प्रतीक्षा करें।";
+      if (error.message.includes('API key')) {
+        errorMessage = lang === 'en'
+          ? "The server is not configured correctly. Please contact support."
+          : "सर्वर सही ढंग से कॉन्फ़िगर नहीं किया गया है।";
       }
 
-      setMessages(prev => [...prev, { role: "bot", content: fallbackMessage }]);
+      setMessages(prev => [...prev, { 
+        role: "bot", 
+        content: errorMessage
+      }]);
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const clearChat = () => {
     setMessages([{
@@ -108,7 +100,6 @@ export function AIChat({ lang }: AIChatProps) {
         ? "Namaste! I am your BharatVote Assistant. How can I help you today regarding Indian elections?"
         : "नमस्ते! मैं आपका भारतवोट सहायक हूँ। भारतीय चुनावों के बारे में मैं आज आपकी क्या सहायता कर सकता हूँ?"
     }]);
-    setError(null);
   };
 
   return (
@@ -170,14 +161,6 @@ export function AIChat({ lang }: AIChatProps) {
                 </div>
               </div>
             )}
-            {error && (
-              <div className="flex justify-center p-2">
-                <div className="flex items-center gap-2 text-xs text-destructive bg-destructive/10 px-3 py-1.5 rounded-full border border-destructive/20">
-                  <AlertCircle size={14} />
-                  <span>{error}</span>
-                </div>
-              </div>
-            )}
           </div>
         </ScrollArea>
       </CardContent>
@@ -202,7 +185,6 @@ export function AIChat({ lang }: AIChatProps) {
             disabled={isLoading || !input.trim()} 
             size="icon" 
             className="bg-gradient-to-r from-accent to-blue-600 hover:opacity-90 shrink-0 rounded-full w-10 h-10 shadow-md transition-transform active:scale-95"
-            aria-label="Send message"
           >
             <Send size={16} className="text-white ml-0.5" />
           </Button>
@@ -211,4 +193,3 @@ export function AIChat({ lang }: AIChatProps) {
     </Card>
   );
 }
-

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { rateLimit } from 'express-rate-limit';
 import dotenv from 'dotenv';
+import { rateLimit } from 'express-rate-limit';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -12,25 +12,27 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.API_PORT || 3000;
+const port = process.env.PORT || 8080;
 
 // Security: Rate limiting
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 requests per windowMs
-  message: { error: 'Too many requests, please try again later.' },
-  standardHeaders: true,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // Limit each IP to 100 requests per `window`
+  standardHeaders: 'draft-7',
   legacyHeaders: false,
 });
 
+app.use(limiter);
 app.use(cors());
 app.use(express.json());
 
-// Initialize Gemini
+// Serve static files from the Vite build directory
+app.use(express.static(path.join(__dirname, 'dist')));
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-app.post('/api/chat', limiter, async (req, res) => {
-  const { message, history, lang } = req.body;
+app.post('/api/chat', async (req, res) => {
+  const { messages, lang } = req.body;
 
   if (!process.env.GEMINI_API_KEY) {
     return res.status(500).json({ error: 'Gemini API key is not configured on the server.' });
@@ -50,31 +52,44 @@ app.post('/api/chat', limiter, async (req, res) => {
           - Election Commission of India (ECI) rules
           - Indian democracy and Constitution
           
-          Respond in the language the user speaks (${lang === 'hi' ? 'Hindi' : 'English'}). 
+          Respond in the language the user speaks (${lang === 'en' ? 'English' : 'Hindi'}). 
           Keep responses concise, professional, and use markdown for formatting. 
           If you don't know something, suggest checking the official ECI website (eci.gov.in).` }]
       }
     });
 
+    const lastMessage = messages[messages.length - 1].content;
+    const history = messages.slice(0, -1).map((m) => ({
+      role: m.role === 'user' ? 'user' : 'model',
+      parts: [{ text: m.content }],
+    }));
+
+    // Gemini SDK requires history to start with a 'user' role if present
+    const validHistory = history.length > 0 && history[0].role === 'model' ? history.slice(1) : history;
+
     const chat = model.startChat({
-      history: history || [],
+      history: validHistory,
       generationConfig: {
         maxOutputTokens: 1000,
       },
     });
 
-    const result = await chat.sendMessage(message);
-    const responseText = result.response.text();
-    
-    res.json({ text: responseText });
+    const result = await chat.sendMessage(lastMessage);
+    const response = await result.response;
+    const text = response.text();
+
+    res.json({ text });
   } catch (error) {
-    console.error('Gemini Proxy Error:', error);
-    const status = error.status || 500;
-    const message = error.message || 'An error occurred while communicating with Gemini.';
-    res.status(status).json({ error: message });
+    console.error('Gemini API Error:', error);
+    res.status(500).json({ error: 'Failed to communicate with Gemini AI' });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`API Proxy Server running on port ${PORT}`);
+// Fallback to index.html for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
