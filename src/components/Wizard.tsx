@@ -1,3 +1,4 @@
+import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getWizardSteps, type WizardStep } from "@/data/election-data";
@@ -89,4 +90,5 @@ export function Wizard({ steps, lang }: WizardProps) {
     </div>
   );
 }
+
 
