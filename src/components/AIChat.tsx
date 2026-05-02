@@ -89,8 +89,7 @@ export function AIChat({ lang }: AIChatProps) {
         generationConfig: {
           maxOutputTokens: 1000,
         },
-        systemInstruction: {
-          parts: [{ text: `You are an expert AI assistant for "BharatVote Guide", an interactive platform to educate Indian citizens about the election process. 
+        systemInstruction: `You are an expert AI assistant for "BharatVote Guide", an interactive platform to educate Indian citizens about the election process. 
           Provide accurate, unbiased, and helpful information about:
           - Voter registration and eligibility
           - Polling process (EVM, VVPAT, NOTA)
@@ -101,8 +100,7 @@ export function AIChat({ lang }: AIChatProps) {
           
           Respond in the language the user speaks (${lang === 'en' ? 'English' : 'Hindi'}). 
           Keep responses concise, professional, and use markdown for formatting. 
-          If you don't know something, suggest checking the official ECI website (eci.gov.in).` }]
-        }
+          If you don't know something, suggest checking the official ECI website (eci.gov.in).`
       });
 
       const result = await chat.sendMessage(userMessage);
