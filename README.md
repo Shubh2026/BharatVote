@@ -36,6 +36,7 @@
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
 - **AI Integration**: [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) (Gemini Pro)
 - **Routing**: [React Router](https://reactrouter.com/)
+- **Deployment**: Configured for Google Cloud Run (Docker + Nginx)
 
 ## 🚀 Quick Start
 
@@ -71,6 +72,15 @@
 5. **Open your browser**
    Navigate to `http://localhost:5173` to view the app!
 
+## 🐳 Docker & Cloud Run Deployment
+
+This project includes a production-ready `Dockerfile` multi-stage build using Node and Nginx.
+
+```bash
+docker build -t bharat-vote-guide .
+docker run -p 8080:8080 bharat-vote-guide
+```
+
 ## 📂 Project Structure
 
 ```text
@@ -83,6 +93,8 @@
 │   ├── App.tsx             # Main Application layout and routing
 │   ├── main.tsx            # Application entry point
 │   └── index.css           # Global Tailwind styles
+├── Dockerfile              # Docker configuration for production
+├── nginx.conf              # Nginx configuration for routing
 ├── .env.example            # Example environment variables
 ├── package.json            # Project metadata and dependencies
 └── vite.config.ts          # Vite configuration
