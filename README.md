@@ -8,8 +8,8 @@
   [![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react)](https://react.dev)
   [![Vite](https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite)](https://vitejs.dev)
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org)
-  [![Google Gemini](https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=for-the-badge&logo=google-bard)](https://deepmind.google/technologies/gemini/)
+  [![Google Gemini](https://img.shields.io/badge/Google_Gemini-Grounding-8E75B2?style=for-the-badge&logo=google-bard)](https://deepmind.google/technologies/gemini/)
+  [![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?style=for-the-badge&logo=firebase)](https://firebase.google.com/)
 
   [View Live Demo](https://bharatvote-95155929385.asia-south1.run.app/) · [Report Bug](https://github.com/Shubh2026/Vote-Path-/issues) · [Request Feature](https://github.com/Shubh2026/Vote-Path-/issues)
 </div>
@@ -21,22 +21,23 @@
 - 🌍 **Bilingual Support**: Fully accessible in both English and Hindi.
 - 🎓 **Interactive Education Wizard**: Step-by-step guidance on how to register and vote.
 - ⏳ **Election Timeline**: Visual timeline of important upcoming election dates.
-- 🤖 **AI Assistant (Gemini)**: Instant, accurate answers to your election-related queries powered by Google Gemini.
-- 📝 **Knowledge Quiz**: Test your understanding of the Indian electoral system.
-- 🗺️ **State-Specific Info**: Detailed guides based on your specific state/union territory.
-- ⚡ **Lightning Fast UI**: Built with Vite and React for snappy, instant page transitions.
-- ♿ **Highly Accessible**: Designed with WCAG standards and responsive design for mobile and desktop.
+- 🤖 **AI Assistant (Gemini)**: Grounded in **Google Search** for real-time, accurate answers to election queries.
+- 📝 **Knowledge Quiz**: Test your understanding and save your progress to **Firestore**.
+- 🗺️ **State-Specific Info**: Detailed guides with **Google Maps** integration for CEO office locations.
+- 📈 **Performance Tracking**: Integrated with **Google Analytics 4** for user engagement insights.
+- ⚡ **Lightning Fast UI**: Built with Vite and React 19 for snappy, instant page transitions.
 
 ## 🛠️ Tech Stack
 
-- **Frontend Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- **Frontend**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **Build Tool**: [Vite 8](https://vitejs.dev/)
-- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
-- **Components**: [Radix UI](https://www.radix-ui.com/) + [Lucide Icons](https://lucide.dev/)
+- **Backend**: [Express 5](https://expressjs.com/) (Node.js)
+- **AI Integration**: [Google Gemini 1.5 Flash](https://ai.google.dev/) (with Google Search Grounding)
+- **Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore) (Anonymous score storage)
+- **Hosting**: [Google Cloud Run](https://cloud.google.com/run) (Backend) + [Firebase Hosting](https://firebase.google.com/docs/hosting) (Static Assets)
+- **Maps**: [Google Maps Embed API](https://developers.google.com/maps/documentation/embed/get-started)
+- **Analytics**: [Google Analytics 4](https://analytics.google.com/)
 - **Animations**: [Framer Motion](https://www.framer.com/motion/)
-- **AI Integration**: [@google/generative-ai](https://www.npmjs.com/package/@google/generative-ai) (Gemini Pro)
-- **Routing**: [React Router](https://reactrouter.com/)
-- **Deployment**: Configured for Google Cloud Run (Docker + Nginx)
 
 ## 🚀 Quick Start
 

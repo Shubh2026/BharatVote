@@ -41,6 +41,11 @@ app.post('/api/chat', async (req, res) => {
   try {
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash-latest",
+      tools: [
+        {
+          googleSearchRetrieval: {},
+        },
+      ],
       systemInstruction: {
         role: "system",
         parts: [{ text: `You are an expert AI assistant for "BharatVote Guide", an interactive platform to educate Indian citizens about the election process. 
@@ -77,8 +82,9 @@ app.post('/api/chat', async (req, res) => {
     const result = await chat.sendMessage(lastMessage);
     const response = await result.response;
     const text = response.text();
+    const groundingMetadata = response.candidates?.[0]?.groundingMetadata;
 
-    res.json({ text });
+    res.json({ text, groundingMetadata });
   } catch (error) {
     console.error('Gemini API Error:', error);
     res.status(500).json({ error: 'Failed to communicate with Gemini AI' });

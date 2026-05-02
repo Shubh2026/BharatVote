@@ -4,13 +4,14 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Send, User, Bot, Loader2, RefreshCw } from "lucide-react";
+import { Send, User, Bot, Loader2, RefreshCw, ExternalLink } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface Message {
   role: "user" | "bot";
   content: string;
+  groundingMetadata?: any;
 }
 
 interface AIChatProps {
@@ -69,7 +70,11 @@ export function AIChat({ lang }: AIChatProps) {
       }
 
       const data = await response.json();
-      setMessages(prev => [...prev, { role: "bot", content: data.text }]);
+      setMessages(prev => [...prev, { 
+        role: "bot", 
+        content: data.text,
+        groundingMetadata: data.groundingMetadata 
+      }]);
     } catch (error: any) {
       console.error("Chat Error:", error);
       
@@ -147,6 +152,32 @@ export function AIChat({ lang }: AIChatProps) {
                     <ReactMarkdown remarkPlugins={[remarkGfm]}>
                       {m.content}
                     </ReactMarkdown>
+                    
+                    {/* Task 5: Grounding Citations */}
+                    {m.groundingMetadata?.groundingChunks && (
+                      <div className="mt-4 pt-3 border-t border-muted-foreground/20">
+                        <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1">
+                          <ExternalLink size={10} />
+                          {lang === 'en' ? 'Sources' : 'स्रोत'}
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {m.groundingMetadata.groundingChunks.map((chunk: any, cIdx: number) => (
+                            chunk.web && (
+                              <a 
+                                key={cIdx}
+                                href={chunk.web.uri}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[10px] bg-muted-foreground/10 hover:bg-accent hover:text-white px-2 py-1 rounded-md transition-colors flex items-center gap-1 max-w-[150px] truncate"
+                                title={chunk.web.title}
+                              >
+                                {cIdx + 1}. {chunk.web.title}
+                              </a>
+                            )
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

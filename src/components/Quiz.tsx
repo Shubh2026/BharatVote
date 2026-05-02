@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { QuizQuestion } from "@/data/quiz-data";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, XCircle, RefreshCcw, Award } from "lucide-react";
+import { saveQuizResult } from "@/lib/firebase";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuizProps {
   questions: QuizQuestion[];
@@ -18,6 +20,26 @@ export function Quiz({ questions, lang }: QuizProps) {
   const [showResult, setShowResult] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+
+  // Task 3: Save quiz results to Firestore
+  // Task 1: Track GA4 event
+  useEffect(() => {
+    if (showResult) {
+      saveQuizResult({ score, total: questions.length, lang })
+        .catch(err => console.error("Failed to save results", err));
+      
+      trackEvent('quiz_completed', { 
+        score, 
+        total: questions.length, 
+        lang 
+      });
+    }
+  }, [showResult, score, questions.length, lang]);
+
+  // Track start of quiz
+  useEffect(() => {
+    trackEvent('quiz_started', { lang });
+  }, [lang]);
 
   const handleAnswer = (idx: number) => {
     if (selectedAnswer !== null) return;
