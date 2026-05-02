@@ -26,4 +26,8 @@ dist-ssr
 .env.local
 .env.example
 
+# Coverage artifacts
 .coverage
+htmlcov/
+.nyc_output/
+coverage/

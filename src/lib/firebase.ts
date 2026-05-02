@@ -2,7 +2,7 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBknWO5rR3fGyAG2CWZCgll4ciXOiHPNgU",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "bharatvote-1cdd8.firebaseapp.com",
   projectId: "bharatvote-1cdd8",
   storageBucket: "bharatvote-1cdd8.firebasestorage.app",

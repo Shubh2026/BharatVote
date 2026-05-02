@@ -14,6 +14,13 @@ interface QuizProps {
   lang: 'en' | 'hi';
 }
 
+/**
+ * A bilingual interactive Quiz component.
+ * Tracks score, evaluates answers, and displays explanations.
+ * @param props - Quiz properties.
+ * @param props.questions - Array of quiz questions.
+ * @param props.lang - The selected language ('en' | 'hi').
+ */
 export function Quiz({ questions, lang }: QuizProps) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [score, setScore] = useState(0);

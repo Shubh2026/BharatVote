@@ -9,6 +9,13 @@ interface TimelineProps {
   lang: 'en' | 'hi';
 }
 
+/**
+ * An animated bilingual Timeline component displaying election phases.
+ * Uses Framer Motion for scroll-triggered animations.
+ * @param props - Timeline properties.
+ * @param props.data - Array of timeline items to display.
+ * @param props.lang - The selected language ('en' | 'hi').
+ */
 export function Timeline({ data, lang }: TimelineProps) {
   return (
     <div className="relative max-w-5xl mx-auto py-12 px-4 md:px-0">

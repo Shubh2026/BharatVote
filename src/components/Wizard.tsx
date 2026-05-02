@@ -8,10 +8,18 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 interface WizardProps {
+  /** Array of step objects defining the wizard flow. */
   steps: WizardStep[];
+  /** The active UI language: 'en' for English, 'hi' for Hindi. */
   lang: 'en' | 'hi';
 }
 
+/**
+ * Wizard component — renders a multi-step guide with animated step
+ * indicator, progress bar, and navigable content cards.
+ *
+ * @param props - {@link WizardProps}
+ */
 export function Wizard({ steps, lang }: WizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -32,8 +40,8 @@ export function Wizard({ steps, lang }: WizardProps) {
       {/* Step Indicator */}
       <div className="relative mb-14 px-4 max-w-2xl mx-auto">
         <div className="absolute top-1/2 left-0 w-full h-1.5 bg-muted/50 rounded-full -translate-y-1/2 z-0" />
-        <motion.div 
-          className="absolute top-1/2 left-0 h-1.5 bg-gradient-to-r from-primary to-accent rounded-full -translate-y-1/2 z-0" 
+        <motion.div
+          className="absolute top-1/2 left-0 h-1.5 bg-gradient-to-r from-primary to-accent rounded-full -translate-y-1/2 z-0"
           initial={{ width: 0 }}
           animate={{ width: `${(currentStep / (steps.length - 1)) * 100}%` }}
           transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -45,9 +53,11 @@ export function Wizard({ steps, lang }: WizardProps) {
               onClick={() => setCurrentStep(idx)}
               whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.95 }}
+              aria-label={`Go to step ${step.step}`}
+              aria-current={idx === currentStep ? 'step' : undefined}
               className={`w-12 h-12 rounded-full flex items-center justify-center border-4 transition-colors duration-300 ${
-                idx <= currentStep 
-                  ? "bg-primary border-white text-primary-foreground shadow-lg shadow-primary/30 dark:border-slate-900" 
+                idx <= currentStep
+                  ? "bg-primary border-white text-primary-foreground shadow-lg shadow-primary/30 dark:border-slate-900"
                   : "bg-background border-muted text-muted-foreground hover:border-primary/30"
               }`}
             >

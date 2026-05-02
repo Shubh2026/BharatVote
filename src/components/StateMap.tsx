@@ -10,7 +10,7 @@ interface StateMapProps {
  */
 export const StateMap: React.FC<StateMapProps> = ({ stateName }) => {
   // Replace with your actual Google Maps API Key
-  const API_KEY = "AIzaSyCz_4stcrNaIQAAZcpMiWjQ9eGSENFhETU";
+  const API_KEY = import.meta.env.VITE_MAPS_API_KEY;
 
   // Constructing the search query for the CEO office
   const query = encodeURIComponent(`Chief Electoral Officer office, ${stateName}, India`);
